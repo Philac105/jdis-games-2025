@@ -1,4 +1,4 @@
-import {run} from "./jdis";
+import {type Position, run} from "./jdis";
 import {findClosestChest, goToPosition} from "./jdis/utils-phil.ts";
 
 const token = "c5qpmnfp";
@@ -22,13 +22,17 @@ run(
         console.log(gameState.ground.data);
 
         const closestChestPosition = findClosestChest(gameState, bot);
-        console.log(closestChestPosition);
+        console.log("CLOSESTCHESSI:", closestChestPosition);
         if (closestChestPosition) {
-            const action = goToPosition(gameState, bot, closestChestPosition);
-            if (gameState.player.position === closestChestPosition) {
+            const x: Position = {x: 3, y: 3}
+            if (x === closestChestPosition) {
                 console.log("Reached chest at:", closestChestPosition);
+
+
                 return bot.openChest(closestChestPosition);
             }
+
+            let action = goToPosition(gameState, bot, closestChestPosition);
 
             console.log("Walking to chest at:", action);
             return action;

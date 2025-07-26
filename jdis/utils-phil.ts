@@ -64,7 +64,8 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
             const key = posKey(next);
             if (visited.has(key)) continue;
 
-            const cell = gameState.ground.data[next.y * gameState.ground.width + next.x];
+            console.log("HAHA:", next.y * MAX_SIZE + next.x);
+            const cell = gameState.ground.data[next.y * MAX_SIZE + next.x];
             if (!isValid(cell)) continue;
             console.log("Is valid!", next);
 
@@ -77,25 +78,26 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
     return [];
 }
 
-export function goToPosition(gameState: GameState, bot: any, position: Position): any {
-    const playerPosition = gameState.player.position;
-    const path = bfs(gameState, bot, playerPosition, position);
+export function goToPosition(gameState: GameState, bot: any, position: Position): any {;
+    const path = bfs(gameState, bot, {x: 3, y: 3}, position);
 
     if (path.length === 0) {
         console.log("No path found!");
-        const fallback = moveToDirectionDeprecated(playerPosition, position);
+        const fallback = moveToDirectionDeprecated({x: 3, y: 3}, position);
         if (fallback) return bot.phase(fallback);
         else return bot.doNothing();
     }
 
     const nextStep = path[0];
-    const direction = getDirection(playerPosition, nextStep!);
+    const direction = getDirection({x: 3, y: 3}, nextStep!);
     if (!direction || !nextStep) {
         console.log("No direction or nextStep found!");
         return bot.doNothing();
     }
 
-    const cell = gameState.ground.data[nextStep.y * gameState.ground.width + nextStep.x];
+    console.log("GROUND WIDTH", gameState.ground.width);
+    console.log("HIHI:", nextStep.y * MAX_SIZE + nextStep.x);
+    const cell = gameState.ground.data[nextStep.y * MAX_SIZE + nextStep.x];
     if (cell === "resistance") {
         return bot.phase(direction);
     } else {
@@ -108,10 +110,10 @@ export function findClosestChest(gameState: GameState, bot: any) {
     let closestChest: Position | null = null;
     let minDist = Infinity;
 
-    for (let x = 0; x < MAX_SIZE; x++) {
-        for (let y = 0; y < MAX_SIZE; y++) {
+    for (let y = 0; y < MAX_SIZE; y++) {
+        for (let x = 0; x < MAX_SIZE; x++) {
             const pos: Position = { x, y };
-            if (gameState.ground.data[y * gameState.ground.width + x] === "chest") {
+            if (gameState.ground.data[y * MAX_SIZE + x] === "chest") {
                 console.log("Chest found at:", pos);
                 const dist = Math.abs(myPos.x - x) + Math.abs(myPos.y - y);
                 if (dist < minDist) {

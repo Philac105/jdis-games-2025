@@ -38,7 +38,6 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
     const cameFrom = new Map<string, Position>();
 
     while (queue.length > 0) {
-        console.log("Queue length:", queue.length);
         const current = queue.shift()!;
         if (current.x === goal.x && current.y === goal.y) {
             const path: Position[] = [];
@@ -63,8 +62,6 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
 
             const key = posKey(next);
             if (visited.has(key)) continue;
-
-            console.log("HAHA:", next.y * MAX_SIZE + next.x);
             const cell = gameState.ground.data[next.y * MAX_SIZE + next.x];
             if (!isValid(cell)) continue;
             console.log("Is valid!", next);
@@ -94,13 +91,12 @@ export function goToPosition(gameState: GameState, bot: any, position: Position)
         console.log("No direction or nextStep found!");
         return bot.doNothing();
     }
-
-    console.log("GROUND WIDTH", gameState.ground.width);
-    console.log("HIHI:", nextStep.y * MAX_SIZE + nextStep.x);
     const cell = gameState.ground.data[nextStep.y * MAX_SIZE + nextStep.x];
     if (cell === "resistance") {
         return bot.phase(direction);
     } else {
+        nextStep.x = nextStep.x - 3 + gameState.player.position.x;
+        nextStep.y = nextStep.y - 3 + gameState.player.position.y;
         return bot.move(nextStep);
     }
 }

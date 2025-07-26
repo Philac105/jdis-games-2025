@@ -1,6 +1,6 @@
 import type {CardinalDirection, Cell, GameState, Position} from "./types";
 
-export const CENTER = { x: 30, y: 30 };
+const MAX_SIZE = 125;
 
 const directions = [
     { x: 0, y: -1, name: "up" },
@@ -36,8 +36,9 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
     const queue: Position[] = [start];
     const visited = new Set<string>([posKey(start)]);
     const cameFrom = new Map<string, Position>();
-
+    console.log("PLS");
     while (queue.length > 0) {
+        console.log("Queue length:", queue.length);
         const current = queue.shift()!;
         if (current.x === goal.x && current.y === goal.y) {
             const path: Position[] = [];
@@ -51,11 +52,12 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
         }
 
         for (const dir of directions) {
+            console.log("PLS");
             const next = { x: current.x + dir.x, y: current.y + dir.y };
 
             if (
-                next.x < 0 || next.x >= gameState.ground.width ||
-                next.y < 0 || next.y >= gameState.ground.height
+                next.x < 0 || next.x >= MAX_SIZE ||
+                next.y < 0 || next.y >= MAX_SIZE
             ) {
                 continue;
             }
@@ -63,9 +65,8 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
             const key = posKey(next);
             if (visited.has(key)) continue;
 
-            const cell = gameState.ground.data[next.y * gameState.ground.width + next.x];
+            const cell = bot.getGlobalCell(next);
             if (!isValid(cell)) continue;
-            console.log("Next path :", next);
             console.log("Is valid!", next);
 
             queue.push(next);
@@ -78,6 +79,7 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
 }
 
 export function goToPosition(gameState: GameState, bot: any, position: Position): any {
+    console.log("PLS");
     const playerPosition = gameState.player.position;
     const path = bfs(gameState, bot, playerPosition, position);
 
@@ -95,7 +97,7 @@ export function goToPosition(gameState: GameState, bot: any, position: Position)
         return bot.doNothing();
     }
 
-    const cell = gameState.ground.data[nextStep.y * gameState.ground.width + nextStep.x];
+    const cell = bot.getGlobalCell(nextStep);
     if (cell === "resistance") {
         return bot.phase(direction);
     } else {
@@ -103,16 +105,18 @@ export function goToPosition(gameState: GameState, bot: any, position: Position)
     }
 }
 
-export function findClosestChest(gameState: GameState) {
+export function findClosestChest(gameState: GameState, bot: any) {
     const myPos = gameState.player.position;
-    const { width, height, data } = gameState.ground;
     let closestChest: Position | null = null;
     let minDist = Infinity;
 
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const idx = y * width + x;
-            if (data[idx] === "chest") {
+    for (let x = 0; x < MAX_SIZE; x++) {
+        for (let y = 0; y < MAX_SIZE; y++) {
+            const pos: Position = { x, y };
+           // console.log(pos);
+          //  console.log(bot.getGlobalCell(pos));
+            if (bot.getGlobalCell(pos) === "chest") {
+                console.log("Chest found at:", pos);
                 const dist = Math.abs(myPos.x - x) + Math.abs(myPos.y - y);
                 if (dist < minDist) {
                     minDist = dist;

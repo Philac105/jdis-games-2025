@@ -17,7 +17,10 @@ run(
       //      reachedCenter = true;
        // }
 
-        const closestChestPosition = findClosestChest(gameState);
+        console.log(gameState.ground.data);
+
+        const closestChestPosition = findClosestChest(gameState, bot);
+        console.log(closestChestPosition);
         if (closestChestPosition) {
             const action = goToPosition(gameState, bot, closestChestPosition);
             if (gameState.player.position === closestChestPosition) {
@@ -27,6 +30,8 @@ run(
 
             console.log("Walking to chest at:", action);
             return action;
+        } else {
+
         }
         return bot.doNothing();
 

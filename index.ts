@@ -18,7 +18,11 @@ run(
        // if (gameState.player.position === CENTER) {
       //      reachedCenter = true;
        // }
-
+        for (const item of gameState.player.inventory) {
+            if (item.type === "nuke") {
+                return bot.useItemNuke(item);
+            }
+        }
 
         const closestChestPosition = findClosestChest(gameState, bot);
         console.log("CLOSESTCHESSI:", closestChestPosition);

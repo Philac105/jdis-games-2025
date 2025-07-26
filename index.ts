@@ -16,8 +16,11 @@ run(
         const playerPosition = gameState.player.position;
         const direction = moveToCenterDirection(playerPosition);
 
+
         if (direction) {
-            return smartMove(bot, direction);
+            const action = smartMove(gameState, bot, direction);
+            console.log("Action:", action);
+            return action;
         } else {
             return bot.doNothing(); // At center, no move needed
         }

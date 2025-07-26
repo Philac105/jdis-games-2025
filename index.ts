@@ -1,6 +1,6 @@
 import { run } from "./jdis";
 
-const token = "YOUR_TOKEN_HERE";
+const token = "c5qpmnfp";
 
 run(
     () => {
@@ -10,9 +10,22 @@ run(
         console.clear();
         bot.print();
 
-        // Ajoutez votre code ici!
-
-        return bot.doNothing();
+        const playerPosition = gameState.player.position;
+        return moveToCenter(playerPosition, bot);
     },
     token,
 );
+
+function moveToCenter(playerPosition: { x: number; y: number }, bot: any) {
+    const center = { x: 62, y: 62 };
+    if (playerPosition.x < center.x) {
+        return bot.moveRight();
+    } else if (playerPosition.x > center.x) {
+        return bot.moveLeft();
+    } else if (playerPosition.y < center.y) {
+        return bot.moveDown();
+    } else if (playerPosition.y > center.y) {
+        return bot.moveUp();
+    }
+    return bot.doNothing();
+}

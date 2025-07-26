@@ -1,4 +1,4 @@
-import {type GameState, type Position} from "./index.ts";
+import {type CardinalDirection, type GameState, type Position} from "./index.ts";
 
 const MAP_MAX = 125;
 
@@ -21,8 +21,6 @@ export function getZone20x20(gameState: GameState, bot: any): string[][] {
     return grid;
 }
 
-type Direction = "up" | "down" | "left" | "right";
-
 const directionVectors = {
     up:    { x: 0, y: -1 },
     down:  { x: 0, y: 1 },
@@ -30,25 +28,25 @@ const directionVectors = {
     right: { x: 1, y: 0 },
 };
 
-export function smartMove(gameState: GameState, bot: any, direction: Direction) {
+export function smartMove(gameState: GameState, bot: any, direction: CardinalDirection) {
     const grid = getZone20x20(gameState, bot);
     const player = gameState.player;
 
     const offset = directionVectors[direction];
 
-    const targetX = player.position.x + offset.x;
-    const targetY = player.position.y + offset.y;
+    const targetPosition: Position = {
+        x: player.position.x + offset.x,
+        y: player.position.y + offset.y
+    };
 
-    const targetCell = grid?.[targetX]?.[targetY];
-
-    console.log(offset, targetX, targetY, targetCell);
+    const targetCell = grid?.[offset.x]?.[offset.y];
 
     if (!targetCell) {
         return bot.doNothing();
     }
 
     if (targetCell === "firewall" || targetCell === "via") {
-        const alternatives: Direction[] = ["left", "right", "up", "down"];
+        const alternatives: CardinalDirection[] = ["left", "right", "up", "down"];
 
         for (const altDir of alternatives) {
             const altOffset = directionVectors[altDir];
@@ -68,6 +66,12 @@ export function smartMove(gameState: GameState, bot: any, direction: Direction) 
         }
 
         return bot.doNothing();
+    }
+
+    if (targetCell === "resistance") {
+        return bot.phase(direction);
+    } else {
+        return bot.move(targetPosition);
     }
 }
 

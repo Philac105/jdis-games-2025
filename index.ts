@@ -5,6 +5,8 @@ const token = "c5qpmnfp";
 
 let reachedCenter = false;
 
+const CENTER = { x: 62, y: 62 };
+
 run(
     () => {
         console.log("New game started!");
@@ -31,12 +33,14 @@ run(
             console.log("Walking to chest at:", action);
             return action;
         } else {
-
+            const action = goToPosition(gameState, bot, CENTER);
+            console.log("Walking to center:", action);
+            return action;
         }
         return bot.doNothing();
 
         // if (!reachedCenter) {
-        //     const action = goToPosition(gameState, bot, CENTER);
+        //
         //     console.log("Action:", action);
         //     if (action.action === "phase") {
         //         console.log("Phase:", action.direction);

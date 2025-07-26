@@ -1,6 +1,6 @@
 import type {CardinalDirection, Cell, GameState, Position} from "./types";
 
-const MAX_SIZE = 125;
+const MAX_SIZE = 7;
 
 const directions = [
     { x: 0, y: -1, name: "up" },
@@ -36,7 +36,7 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
     const queue: Position[] = [start];
     const visited = new Set<string>([posKey(start)]);
     const cameFrom = new Map<string, Position>();
-    console.log("PLS");
+
     while (queue.length > 0) {
         console.log("Queue length:", queue.length);
         const current = queue.shift()!;
@@ -52,7 +52,6 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
         }
 
         for (const dir of directions) {
-            console.log("PLS");
             const next = { x: current.x + dir.x, y: current.y + dir.y };
 
             if (
@@ -79,7 +78,6 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
 }
 
 export function goToPosition(gameState: GameState, bot: any, position: Position): any {
-    console.log("PLS");
     const playerPosition = gameState.player.position;
     const path = bfs(gameState, bot, playerPosition, position);
 

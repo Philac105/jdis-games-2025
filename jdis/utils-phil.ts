@@ -1,6 +1,6 @@
-import type {CardinalDirection, GameState, Position} from "./types";
+import type {CardinalDirection, Cell, GameState, Position} from "./types";
 
-export const CENTER = { x: 10, y: 10 };
+export const CENTER = { x: 30, y: 30 };
 
 const directions = [
     { x: 0, y: -1, name: "up" },
@@ -9,10 +9,9 @@ const directions = [
     { x: 1, y: 0, name: "right" },
 ];
 
-export function moveToCenterDirection(playerPosition: Position): CardinalDirection | null {
-    const center = { x: 62, y: 62 };
-    const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
-    const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;
+export function moveToDirectionDeprecated(playerPosition: Position, targetPosition: Position): CardinalDirection | null {
+    const dx = playerPosition.x < targetPosition.x ? 1 : playerPosition.x > targetPosition.x ? -1 : 0;
+    const dy = playerPosition.y < targetPosition.y ? 1 : playerPosition.y > targetPosition.y ? -1 : 0;
 
     if (dx === 0 && dy === 0) return null;
     if (dx !== 0) return dx === 1 ? "right" : "left";
@@ -23,7 +22,7 @@ function posKey(pos: Position): string {
     return `${pos.x},${pos.y}`;
 }
 
-function isValid(cell: string): boolean {
+function isValid(cell: Cell | undefined): boolean {
     return !!cell && cell !== "firewall" && cell !== "via";
 }
 
@@ -33,7 +32,7 @@ function getDirection(from: Position, to: Position): string | null {
     return directions.find(d => d.x === dx && d.y === dy)?.name ?? null;
 }
 
-function bfs(bot: any, start: Position, goal: Position): Position[] {
+function bfs(gameState: GameState, bot: any, start: Position, goal: Position): Position[] {
     const queue: Position[] = [start];
     const visited = new Set<string>([posKey(start)]);
     const cameFrom = new Map<string, Position>();
@@ -56,8 +55,10 @@ function bfs(bot: any, start: Position, goal: Position): Position[] {
             const key = posKey(next);
             if (visited.has(key)) continue;
 
-            const cell = bot.getGlobalCell(next);
+            const cell = gameState.ground.data[next.y * gameState.ground.width + next.x];
             if (!isValid(cell)) continue;
+            console.log("Next path :", next);
+            console.log("Is valid!", next);
 
             queue.push(next);
             visited.add(key);
@@ -70,22 +71,27 @@ function bfs(bot: any, start: Position, goal: Position): Position[] {
 
 export function goToCenter(gameState: GameState, bot: any) {
     const playerPosition = gameState.player.position;
-    const path = bfs(bot, playerPosition, CENTER);
+    const path = bfs(gameState, bot, playerPosition, CENTER);
 
     if (path.length === 0) {
-        const fallback = moveToCenterDirection(playerPosition);
+        console.log("No path found!");
+        const fallback = moveToDirectionDeprecated(playerPosition, CENTER);
         if (fallback) return bot.phase(fallback);
         else return bot.doNothing();
     }
 
     const nextStep = path[0];
     const direction = getDirection(playerPosition, nextStep!);
-    if (!direction) return bot.doNothing();
+    if (!direction || !nextStep) {
+        console.log("No direction or nextStep found!");
+        return bot.doNothing();
+    }
 
-    const cell = bot.getGlobalCell(nextStep);
+    const cell = gameState.ground.data[nextStep.y * gameState.ground.width + nextStep.x];
     if (cell === "resistance") {
         return bot.phase(direction);
     } else {
-        return bot.move(nextStep!);
+        return bot.move(nextStep);
     }
 }
+

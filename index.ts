@@ -20,6 +20,11 @@ run(
         if (!reachedCenter) {
             const action = goToCenter(gameState, bot);
             console.log("Action:", action);
+            if (action.action === "phase") {
+                console.log("Phase:", action.direction);
+            } else {
+                console.log("Position:", action.position);
+            }
             return action;
         }
     },

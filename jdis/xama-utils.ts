@@ -40,12 +40,9 @@ export function smartMove(gameState: GameState, bot: any, direction: CardinalDir
     };
 
     const targetCell = grid?.[offset.x]?.[offset.y];
+    console.log("Target cell:", targetCell);
 
-    if (!targetCell) {
-        return bot.doNothing();
-    }
-
-    if (targetCell === "firewall" || targetCell === "via") {
+    if (!targetCell || targetCell === "firewall" || targetCell === "via") {
         const alternatives: CardinalDirection[] = ["left", "right", "up", "down"];
 
         for (const altDir of alternatives) {

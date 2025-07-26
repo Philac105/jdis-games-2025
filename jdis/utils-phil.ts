@@ -1,30 +1,19 @@
-import type {GameState, Position} from "./types";
+import type { GameState, Position } from "./types";
 
 type Direction = "up" | "down" | "left" | "right";
-export function moveToCenterDirection(playerPosition: { x: number; y: number }): Direction | null {
+
+export function moveToCenterDirection(playerPosition: Position): Direction | null {
     const center = { x: 62, y: 62 };
     const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
     const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;
 
-    if (dx === 0 && dy === 0) {
-        return null; // Already at center
-    }
-
-    // Prioritize horizontal or vertical move if needed
-    if (dx !== 0 && dy === 0) {
-        return dx === 1 ? "right" : "left";
-    }
-    if (dy !== 0 && dx === 0) {
-        return dy === 1 ? "down" : "up";
-    }
-
-    // If both dx and dy are non-zero, pick one direction (e.g., horizontal first)
-    return dx === 1 ? "right" : "left";
+    if (dx === 0 && dy === 0) return null;
+    if (dx !== 0) return dx === 1 ? "right" : "left";
+    return dy === 1 ? "down" : "up";
 }
 
 const CENTER = { x: 62, y: 62 };
 
-// Cardinal direction mapping
 const directions = [
     { x: 0, y: -1, name: "up" },
     { x: 0, y: 1, name: "down" },
@@ -32,7 +21,7 @@ const directions = [
     { x: 1, y: 0, name: "right" },
 ];
 
-function posKey(pos: Position) {
+function posKey(pos: Position): string {
     return `${pos.x},${pos.y}`;
 }
 
@@ -40,54 +29,66 @@ function isValid(cell: string): boolean {
     return !!cell && cell !== "firewall" && cell !== "via";
 }
 
-function getDirection(from: Position, to: Position) {
+function getDirection(from: Position, to: Position): string | null {
     const dx = to.x - from.x;
     const dy = to.y - from.y;
-    return directions.find(d => d.x === dx && d.y === dy)?.name;
+    return directions.find(d => d.x === dx && d.y === dy)?.name ?? null;
 }
 
-// DFS recursive helper
-function dfs(bot: any, current: Position, target: Position, path: Position[], visited: Set<string>): boolean {
-    if (current.x === target.x && current.y === target.y) return true;
+function bfs(bot: any, start: Position, goal: Position): Position[] {
+    const queue: Position[] = [start];
+    const visited = new Set<string>([posKey(start)]);
+    const cameFrom = new Map<string, Position>();
 
-    visited.add(posKey(current));
+    while (queue.length > 0) {
+        const current = queue.shift()!;
+        if (current.x === goal.x && current.y === goal.y) {
+            const path: Position[] = [];
+            let cur = current;
+            while (posKey(cur) !== posKey(start)) {
+                path.push(cur);
+                cur = cameFrom.get(posKey(cur))!;
+            }
+            path.reverse();
+            return path;
+        }
 
-    for (const dir of directions) {
-        const next = { x: current.x + dir.x, y: current.y + dir.y };
-        const key = posKey(next);
-        if (visited.has(key)) continue;
+        for (const dir of directions) {
+            const next = { x: current.x + dir.x, y: current.y + dir.y };
+            const key = posKey(next);
+            if (visited.has(key)) continue;
 
-        const cell = bot.getGlobalCell(next);
-        if (!isValid(cell)) continue;
+            const cell = bot.getGlobalCell(next);
+            if (!isValid(cell)) continue;
 
-        if (dfs(bot, next, target, path, visited)) {
-            path.push(next);
-            return true;
+            queue.push(next);
+            visited.add(key);
+            cameFrom.set(key, current);
         }
     }
 
-    return false;
+    return [];
 }
 
-export function goToCenter(gameState: GameState, bot: any, visited: Set<string>) {
+export function goToCenter(gameState: GameState, bot: any) {
     const playerPosition = gameState.player.position;
-    const path: Position[] = [];
+    const path = bfs(bot, playerPosition, CENTER);
 
-    if (dfs(bot, playerPosition, CENTER, path, visited)) {
-        const nextStep = path[path.length - 1];
-        if (!nextStep) return bot.doNothing();
+    if (path.length === 0) {
+        // Fallback: try any step toward center, even if blocked
+        const fallback = moveToCenterDirection(playerPosition);
+        if (fallback) return bot.phase(fallback);
+        else return bot.doNothing();
+    }
 
-        const cell = bot.getGlobalCell(nextStep);
+    const nextStep = path[0];
+    const direction = getDirection(playerPosition, nextStep!);
+    if (!direction) return bot.doNothing();
 
-        const directionName = getDirection(playerPosition, nextStep);
-        if (!directionName) return bot.doNothing();
-
-        if (cell === "resistance") {
-            bot.phase(directionName);
-        } else {
-            bot.move({ x: nextStep.x - playerPosition.x, y: nextStep.y - playerPosition.y });
-        }
+    const cell = bot.getGlobalCell(nextStep);
+    if (cell === "resistance") {
+        return bot.phase(direction);
     } else {
-        bot.doNothing();
+        return bot.move(nextStep!);
     }
 }

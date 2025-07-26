@@ -1,7 +1,5 @@
 import {run} from "./jdis";
-import {goToCenter, moveToCenterDirection, visited} from "./jdis/utils-phil.ts";
-import {smartMove} from "./jdis/xama-utils.ts";
-
+import {goToCenter} from "./jdis/utils-phil.ts";
 
 const token = "c5qpmnfp";
 
@@ -24,8 +22,9 @@ run(
         } else {
             return bot.doNothing(); // At center, no move needed
         }*/
-        const visited = new Set<string>();
-        return goToCenter(gameState, bot, visited);
+        const action = goToCenter(gameState, bot);
+        console.log("Action:", action);
+        return action;
     },
     token,
 );

@@ -94,4 +94,3 @@ export function findClosestPlayer(gameState: GameState) {
     return closestPlayer;
 }
 
-

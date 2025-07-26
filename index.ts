@@ -1,7 +1,9 @@
 import {run} from "./jdis";
-import {goToCenter} from "./jdis/utils-phil.ts";
+import {CENTER, goToCenter} from "./jdis/utils-phil.ts";
 
 const token = "c5qpmnfp";
+
+let reachedCenter = false;
 
 run(
     () => {
@@ -11,20 +13,15 @@ run(
         console.clear();
         bot.print();
 
-        /*const playerPosition = gameState.player.position;
-        const direction = moveToCenterDirection(playerPosition);
+        if (gameState.player.position === CENTER) {
+            reachedCenter = true;
+        }
 
-
-        if (direction) {
-            const action = smartMove(gameState, bot, direction);
+        if (!reachedCenter) {
+            const action = goToCenter(gameState, bot);
             console.log("Action:", action);
             return action;
-        } else {
-            return bot.doNothing(); // At center, no move needed
-        }*/
-        const action = goToCenter(gameState, bot);
-        console.log("Action:", action);
-        return action;
+        }
     },
     token,
 );

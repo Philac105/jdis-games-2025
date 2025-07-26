@@ -12,7 +12,7 @@ export function moveToCenterDirection(playerPosition: Position): Direction | nul
     return dy === 1 ? "down" : "up";
 }
 
-const CENTER = { x: 62, y: 62 };
+export const CENTER = { x: 62, y: 62 };
 
 const directions = [
     { x: 0, y: -1, name: "up" },
@@ -75,7 +75,6 @@ export function goToCenter(gameState: GameState, bot: any) {
     const path = bfs(bot, playerPosition, CENTER);
 
     if (path.length === 0) {
-        // Fallback: try any step toward center, even if blocked
         const fallback = moveToCenterDirection(playerPosition);
         if (fallback) return bot.phase(fallback);
         else return bot.doNothing();

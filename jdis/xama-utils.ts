@@ -71,4 +71,27 @@ export function smartMove(gameState: GameState, bot: any, direction: CardinalDir
     }
 }
 
+function manhattanDistance(a: Position, b: Position): number {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+}
+
+export function findClosestPlayer(gameState: GameState) {
+    const myPos = gameState.player.position;
+
+    let closestPlayer = null;
+    let minDist = Infinity;
+
+    for (const other of gameState.enemies) {
+        if (other.hp <= 0) continue;     // skip dead bots
+
+        const dist = manhattanDistance(myPos, other.position);
+        if (dist < minDist) {
+            minDist = dist;
+            closestPlayer = other;
+        }
+    }
+
+    return closestPlayer;
+}
+
 

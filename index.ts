@@ -18,14 +18,10 @@ run(
 
 function moveToCenter(playerPosition: { x: number; y: number }, bot: any) {
     const center = { x: 62, y: 62 };
-    if (playerPosition.x < center.x) {
-        return bot.moveRight();
-    } else if (playerPosition.x > center.x) {
-        return bot.moveLeft();
-    } else if (playerPosition.y < center.y) {
-        return bot.moveDown();
-    } else if (playerPosition.y > center.y) {
-        return bot.moveUp();
+    const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
+    const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;
+    if (dx !== 0 || dy !== 0) {
+        return bot.move({ x: dx, y: dy });
     }
     return bot.doNothing();
 }

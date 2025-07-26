@@ -52,6 +52,14 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
 
         for (const dir of directions) {
             const next = { x: current.x + dir.x, y: current.y + dir.y };
+
+            if (
+                next.x < 0 || next.x >= gameState.ground.width ||
+                next.y < 0 || next.y >= gameState.ground.height
+            ) {
+                continue;
+            }
+
             const key = posKey(next);
             if (visited.has(key)) continue;
 
@@ -69,13 +77,13 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
     return [];
 }
 
-export function goToCenter(gameState: GameState, bot: any) {
+export function goToPosition(gameState: GameState, bot: any, position: Position): any {
     const playerPosition = gameState.player.position;
-    const path = bfs(gameState, bot, playerPosition, CENTER);
+    const path = bfs(gameState, bot, playerPosition, position);
 
     if (path.length === 0) {
         console.log("No path found!");
-        const fallback = moveToDirectionDeprecated(playerPosition, CENTER);
+        const fallback = moveToDirectionDeprecated(playerPosition, position);
         if (fallback) return bot.phase(fallback);
         else return bot.doNothing();
     }
@@ -95,3 +103,24 @@ export function goToCenter(gameState: GameState, bot: any) {
     }
 }
 
+export function findClosestChest(gameState: GameState) {
+    const myPos = gameState.player.position;
+    const { width, height, data } = gameState.ground;
+    let closestChest: Position | null = null;
+    let minDist = Infinity;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const idx = y * width + x;
+            if (data[idx] === "chest") {
+                const dist = Math.abs(myPos.x - x) + Math.abs(myPos.y - y);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestChest = { x, y };
+                }
+            }
+        }
+    }
+
+    return closestChest;
+}

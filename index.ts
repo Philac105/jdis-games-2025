@@ -1,4 +1,5 @@
-import { run } from "./jdis";
+import {run} from "./jdis";
+import {moveToCenter} from "./jdis/utils-phil.ts";
 
 const token = "c5qpmnfp";
 
@@ -15,13 +16,3 @@ run(
     },
     token,
 );
-
-function moveToCenter(playerPosition: { x: number; y: number }, bot: any) {
-    const center = { x: 62, y: 62 };
-    const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
-    const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;
-    if (dx !== 0 || dy !== 0) {
-        return bot.move({ x: dx, y: dy });
-    }
-    return bot.doNothing();
-}

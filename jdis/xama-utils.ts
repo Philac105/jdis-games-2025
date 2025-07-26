@@ -1,4 +1,4 @@
-import {type GameState, type Player, type Position} from "./index.ts";
+import {type GameState, type Position} from "./index.ts";
 
 const MAP_MAX = 125;
 
@@ -41,12 +41,14 @@ export function smartMove(gameState: GameState, bot: any, direction: Direction) 
 
     const targetCell = grid?.[targetX]?.[targetY];
 
+    console.log(offset, targetX, targetY, targetCell);
+
     if (!targetCell) {
         return bot.doNothing();
     }
 
     if (targetCell === "firewall" || targetCell === "via") {
-        const alternatives = ["left", "right", "up", "down"].filter(dir => dir !== direction) as Direction[];
+        const alternatives: Direction[] = ["left", "right", "up", "down"];
 
         for (const altDir of alternatives) {
             const altOffset = directionVectors[altDir];

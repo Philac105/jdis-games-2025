@@ -1,19 +1,18 @@
 import {type CardinalDirection, type GameState, type Position} from "./index.ts";
 
 const MAP_MAX = 125;
+const GRID_RADIUS = 10;
 
 export function getZone20x20(gameState: GameState, bot: any): string[][] {
-    const radius = 10;
-
     const grid: string[][] = Array.from({ length: 20 }, () => Array(20).fill("void"));
 
-    for (let dx = -radius; dx < radius; dx++) {
-        for (let dy = -radius; dy < radius; dy++) {
+    for (let dx = -GRID_RADIUS; dx < GRID_RADIUS; dx++) {
+        for (let dy = -GRID_RADIUS; dy < GRID_RADIUS; dy++) {
             const x = gameState.player.position.x + dx;
             const y = gameState.player.position.y + dy;
 
             if (x >= 0 && x <= MAP_MAX && y >= 0 && y <= MAP_MAX) {
-                grid[dy + radius]![dx + radius] = bot.getGlobalCell({x, y});
+                grid[dx + GRID_RADIUS]![dy + GRID_RADIUS] = bot.getGlobalCell({x, y});
             }
         }
     }
@@ -29,7 +28,6 @@ const directionVectors = {
 };
 
 export function smartMove(gameState: GameState, bot: any, direction: CardinalDirection) {
-    const grid = getZone20x20(gameState, bot);
     const player = gameState.player;
 
     const offset = directionVectors[direction];
@@ -39,7 +37,8 @@ export function smartMove(gameState: GameState, bot: any, direction: CardinalDir
         y: player.position.y + offset.y
     };
 
-    const targetCell = grid?.[offset.x]?.[offset.y];
+    const targetCell = bot.getCell(targetPosition);
+    console.log('targetPosition:', targetPosition);
     console.log("Target cell:", targetCell);
 
     if (!targetCell || targetCell === "firewall" || targetCell === "via") {
@@ -52,7 +51,7 @@ export function smartMove(gameState: GameState, bot: any, direction: CardinalDir
                 y: player.position.y + altOffset.y
             };
 
-            const altCell = grid?.[altPosition.x]?.[altPosition.y];
+            const altCell = bot.getCell(altPosition);
             if (altCell !== "firewall" && altCell !== "via") {
                 if (altCell === "resistance") {
                     return bot.phase(altDir);

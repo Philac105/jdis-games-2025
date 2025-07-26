@@ -1,5 +1,14 @@
 import type {CardinalDirection, GameState, Position} from "./types";
 
+export const CENTER = { x: 10, y: 10 };
+
+const directions = [
+    { x: 0, y: -1, name: "up" },
+    { x: 0, y: 1, name: "down" },
+    { x: -1, y: 0, name: "left" },
+    { x: 1, y: 0, name: "right" },
+];
+
 export function moveToCenterDirection(playerPosition: Position): CardinalDirection | null {
     const center = { x: 62, y: 62 };
     const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
@@ -9,15 +18,6 @@ export function moveToCenterDirection(playerPosition: Position): CardinalDirecti
     if (dx !== 0) return dx === 1 ? "right" : "left";
     return dy === 1 ? "down" : "up";
 }
-
-export const CENTER = { x: 62, y: 62 };
-
-const directions = [
-    { x: 0, y: -1, name: "up" },
-    { x: 0, y: 1, name: "down" },
-    { x: -1, y: 0, name: "left" },
-    { x: 1, y: 0, name: "right" },
-];
 
 function posKey(pos: Position): string {
     return `${pos.x},${pos.y}`;

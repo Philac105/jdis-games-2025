@@ -1,8 +1,6 @@
-import type { GameState, Position } from "./types";
+import type {CardinalDirection, GameState, Position} from "./types";
 
-type Direction = "up" | "down" | "left" | "right";
-
-export function moveToCenterDirection(playerPosition: Position): Direction | null {
+export function moveToCenterDirection(playerPosition: Position): CardinalDirection | null {
     const center = { x: 62, y: 62 };
     const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
     const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;

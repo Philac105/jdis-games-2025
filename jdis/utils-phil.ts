@@ -1,8 +1,15 @@
-import type { GameState, Position } from "./types";
+import type {CardinalDirection, GameState, Position} from "./types";
 
-type Direction = "up" | "down" | "left" | "right";
+export const CENTER = { x: 10, y: 10 };
 
-export function moveToCenterDirection(playerPosition: Position): Direction | null {
+const directions = [
+    { x: 0, y: -1, name: "up" },
+    { x: 0, y: 1, name: "down" },
+    { x: -1, y: 0, name: "left" },
+    { x: 1, y: 0, name: "right" },
+];
+
+export function moveToCenterDirection(playerPosition: Position): CardinalDirection | null {
     const center = { x: 62, y: 62 };
     const dx = playerPosition.x < center.x ? 1 : playerPosition.x > center.x ? -1 : 0;
     const dy = playerPosition.y < center.y ? 1 : playerPosition.y > center.y ? -1 : 0;
@@ -11,15 +18,6 @@ export function moveToCenterDirection(playerPosition: Position): Direction | nul
     if (dx !== 0) return dx === 1 ? "right" : "left";
     return dy === 1 ? "down" : "up";
 }
-
-const CENTER = { x: 62, y: 62 };
-
-const directions = [
-    { x: 0, y: -1, name: "up" },
-    { x: 0, y: 1, name: "down" },
-    { x: -1, y: 0, name: "left" },
-    { x: 1, y: 0, name: "right" },
-];
 
 function posKey(pos: Position): string {
     return `${pos.x},${pos.y}`;
@@ -75,7 +73,6 @@ export function goToCenter(gameState: GameState, bot: any) {
     const path = bfs(bot, playerPosition, CENTER);
 
     if (path.length === 0) {
-        // Fallback: try any step toward center, even if blocked
         const fallback = moveToCenterDirection(playerPosition);
         if (fallback) return bot.phase(fallback);
         else return bot.doNothing();

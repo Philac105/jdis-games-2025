@@ -117,8 +117,8 @@ export function createBot(gameState: GameState) {
          * La position doit être dans le champ de vision 7x7 centré autour du joueur.
          */
         getCell(position: Position): Cell {
-            const x = position.x - gameState.ground.offset.x;
-            const y = position.y - gameState.ground.offset.y;
+            const x = position.x;
+            const y = position.y;
 
             return gameState.ground.data[y * gameState.ground.width + x] ?? "groundPlane";
         },
@@ -127,6 +127,14 @@ export function createBot(gameState: GameState) {
          * Retourne le type de cellule à une position absolue dans la map (convertie en position relative)
          */
         getGlobalCell(position: Position): Cell {
+            console.log("feeded pos x:", position.x);
+            console.log("feeded pos y:", position.y);
+
+            console.log("y : ",  (position.y - gameState.player.position.y));
+            console.log("x : ",  (position.x - gameState.player.position.x));
+            console.log("result :", (gameState.player.position.y - position.y) * gameState.ground.width +
+                (gameState.player.position.x - position.x));
+
             return (
                 gameState.ground.data[
                     (position.y - gameState.player.position.y) * gameState.ground.width +

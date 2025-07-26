@@ -64,7 +64,7 @@ function bfs(gameState: GameState, bot: any, start: Position, goal: Position): P
             const key = posKey(next);
             if (visited.has(key)) continue;
 
-            const cell = bot.getGlobalCell(next);
+            const cell = gameState.ground.data[next.y * gameState.ground.width + next.x];
             if (!isValid(cell)) continue;
             console.log("Is valid!", next);
 
@@ -95,7 +95,7 @@ export function goToPosition(gameState: GameState, bot: any, position: Position)
         return bot.doNothing();
     }
 
-    const cell = bot.getGlobalCell(nextStep);
+    const cell = gameState.ground.data[nextStep.y * gameState.ground.width + nextStep.x];
     if (cell === "resistance") {
         return bot.phase(direction);
     } else {
@@ -111,9 +111,7 @@ export function findClosestChest(gameState: GameState, bot: any) {
     for (let x = 0; x < MAX_SIZE; x++) {
         for (let y = 0; y < MAX_SIZE; y++) {
             const pos: Position = { x, y };
-           // console.log(pos);
-          //  console.log(bot.getGlobalCell(pos));
-            if (bot.getGlobalCell(pos) === "chest") {
+            if (gameState.ground.data[y * gameState.ground.width + x] === "chest") {
                 console.log("Chest found at:", pos);
                 const dist = Math.abs(myPos.x - x) + Math.abs(myPos.y - y);
                 if (dist < minDist) {
